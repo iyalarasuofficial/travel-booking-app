@@ -1,0 +1,57 @@
+/* Container for the carousel */
+.carousel-container {
+  width: 90%;
+  margin: 0 auto;
+  position: relative;
+}
+
+/* Custom styles for the slick arrows */
+.slick-prev, .slick-next {
+  z-index: 10;
+  background-color: rgba(0, 0, 0, 0.5);  /* Arrow background */
+  color: white;
+  border: none;
+  padding: 10px;
+  border-radius: 50%;
+  font-size: 20px;
+  transition: background-color 0.3s ease;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  display: block;
+}
+
+.slick-prev:hover, .slick-next:hover {
+  background-color: rgba(0, 0, 0, 0.8);
+}
+
+.slick-prev {
+  left: 10px;
+}
+
+.slick-next {
+  right: 10px;
+}
+
+/* Remove dots completely */
+.slick-dots {
+  display: none !important;
+}
+
+/* Adjust the icon size for arrows */
+.slick-prev:before, .slick-next:before {
+  font-size: 30px;  /* Adjust size of arrows */
+  color: white;
+}
+
+@media (max-width: 1024px) {
+  .slick-prev, .slick-next {
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 600px) {
+  .slick-prev, .slick-next {
+    font-size: 14px;
+  }
+}
