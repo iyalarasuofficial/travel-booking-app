@@ -18,7 +18,6 @@ app.use(cors({}));
 connectDB();
 
 app.use('/api/users', userRoutes);
-
 app.use('/api/bookings', bookingRoutes);
 app.use('/api/destinations', destinationRoutes);
 app.use('/api/reviews', reviewRoutes);
