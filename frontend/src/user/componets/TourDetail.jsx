@@ -1,28 +1,23 @@
 import React, { useState, useEffect } from "react";
+import { FaGlobe, FaMapMarkerAlt, FaClock, FaDollarSign } from "react-icons/fa";
+import { ClipLoader } from "react-spinners";
+import BookingForm from "./BookingForm";
+import GalleryCard from "./GalleryCard";
+import { TourHeroSection } from "./TourHeroSection";
+import ReviewSection from "./ReviewSection";
+import api from "../../service/ApiService";
+import ApiRoutes from "../../utils/ApiRoutes";
 
-function TourDetail() {
+function TourDetail({ destinationId }) {
   const [destinationDetails, setDestinationDetails] = useState(null);
-  const [formData, setFormData] = useState({
-    travelDate: "",
-    returnDate: "",
-    numberOfGuests: 1,
-    totalCost: 0,
-  });
 
-  const destinationId="673ec6b8a41f34306eabfaed"
   useEffect(() => {
     const fetchDestinationDetails = async () => {
       try {
-        const response = await fetch(`http://localhost:5000/api/destinations/${destinationId}`);
-        if (!response.ok) {
-          throw new Error('Failed to fetch destination details');
-        }
-        const data = await response.json();
+        const { data } = await api.get(
+          `${ApiRoutes.FETCH_DESTINATION_BY_ID.path}/${destinationId}`
+        );
         setDestinationDetails(data);
-        setFormData((prevData) => ({
-          ...prevData,
-          totalCost: data.pricePerGuest,
-        }));
       } catch (error) {
         console.error("Error fetching destination details:", error);
       }
@@ -31,129 +26,60 @@ function TourDetail() {
     fetchDestinationDetails();
   }, [destinationId]);
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
-
-    if (name === "numberOfGuests") {
-      setFormData((prev) => ({
-        ...prev,
-        totalCost: destinationDetails.pricePerGuest * value,
-      }));
-    }
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      const response = await fetch("http://localhost:5000/api/bookings", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          ...formData,
-          destination: destinationDetails.name,
-          user: "USER_ID", // Replace with logged-in user ID
-        }),
-      });
-      if (!response.ok) throw new Error("Failed to book");
-      alert("Booking successful!");
-    } catch (error) {
-      alert(error.message);
-    }
-  };
-
+  // Show the spinner while destination details are loading
   if (!destinationDetails) {
-    return <div>Loading...</div>;
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <ClipLoader color="#E63946" size={60} />
+      </div>
+    );
   }
 
   return (
-    <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6 p-6">
-      {/* About Section */}
-      <div>
-        <h1 className="text-3xl font-extrabold text-gray-800 mb-4">
-          {destinationDetails.name}
-        </h1>
-        <p className="text-gray-600">{destinationDetails.description}</p>
-        <div className="mt-6">
-          <h2 className="text-xl font-bold text-gray-800">Tour Info</h2>
-          <ul className="mt-4 space-y-2">
-            <li>
-              <strong>Language:</strong> {destinationDetails.language}
-            </li>
-            <li>
-              <strong>Duration:</strong> {destinationDetails.days} days
-            </li>
-            <li>
-              <strong>Destination:</strong> {destinationDetails.location}
-            </li>
-            <li>
-              <strong>Price:</strong> ${destinationDetails.pricePerGuest} per guest
-            </li>
-          </ul>
-        </div>
-      </div>
+    <div className="lg:mx-5">
+      <TourHeroSection destinationDetails={destinationDetails} />
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-4">
+        {/* Left Side: Info, About, and Gallery */}
+        <div className="md:col-span-2 space-y-12">
+          {/* Info Section */}
+          <section>
+            <h2 className="text-4xl font-extrabold text-black-700 mb-4">Info</h2>
+            <ul className="space-y-4 mb-6">
+              <li className="flex items-center gap-2">
+                <FaGlobe className="text-blue-500" />
+                <strong>Language:</strong> {destinationDetails.language}
+              </li>
+              <li className="flex items-center gap-2">
+                <FaMapMarkerAlt className="text-red-500" />
+                <strong>Destination:</strong> {destinationDetails.location}
+              </li>
+              <li className="flex items-center gap-2">
+                <FaClock className="text-green-500" />
+                <strong>Duration:</strong> {destinationDetails.days} days
+              </li>
+              <li className="flex items-center gap-2">
+                <FaDollarSign className="text-yellow-500" />
+                <strong>Price:</strong> ${destinationDetails.pricePerGuest} per guest
+              </li>
+            </ul>
+          </section>
 
-      {/* Booking Form */}
-      <div className="bg-gray-100 p-6 rounded-lg shadow-md">
-        <h2 className="text-2xl font-bold text-gray-800 mb-4">
-          Book This Tour
-        </h2>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Travel Date
-            </label>
-            <input
-              type="date"
-              name="travelDate"
-              value={formData.travelDate}
-              onChange={handleInputChange}
-              required
-              className="w-full p-2 border rounded"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Return Date
-            </label>
-            <input
-              type="date"
-              name="returnDate"
-              value={formData.returnDate}
-              onChange={handleInputChange}
-              className="w-full p-2 border rounded"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Number of Guests
-            </label>
-            <input
-              type="number"
-              name="numberOfGuests"
-              value={formData.numberOfGuests}
-              onChange={handleInputChange}
-              min="1"
-              className="w-full p-2 border rounded"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Total Cost
-            </label>
-            <p className="text-xl font-bold text-gray-800">
-              ${formData.totalCost.toFixed(2)}
-            </p>
-          </div>
-          <button
-            type="submit"
-            className="w-full bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700"
-          >
-            Confirm Booking
-          </button>
-        </form>
+          {/* About Section */}
+          <section>
+            <h2 className="text-4xl font-extrabold text-black-700 mb-4">About</h2>
+            <p className="text-gray-600">{destinationDetails.description}</p>
+          </section>
+
+          {/* Gallery Section */}
+          <GalleryCard destinationDetails={destinationDetails} />
+          <ReviewSection destinationId={destinationId} />
+        </div>
+
+        {/* Right Side: Booking Form */}
+        <BookingForm
+          destinationId={destinationId}
+          pricePerGuest={destinationDetails.pricePerGuest}
+        />
       </div>
     </div>
   );

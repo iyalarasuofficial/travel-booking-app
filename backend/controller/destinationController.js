@@ -14,12 +14,25 @@ const createDestination = async (req, res) => {
 // Get all destinations
 const getAllDestinations = async (req, res) => {
   try {
-    const destinations = await Destination.find();
+    const { search } = req.query; // Get the search query parameter
+
+    // Build the search filter
+    const filter = search
+      ? {
+          $or: [
+            { name: { $regex: search, $options: "i" } }, // Case-insensitive regex for name
+            { location: { $regex: search, $options: "i" } }, // Case-insensitive regex for location
+          ],
+        }
+      : {};
+
+    const destinations = await Destination.find(filter);
     res.status(200).json(destinations);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
+
 
 // Get destination by ID
 const getDestinationById = async (req, res) => {

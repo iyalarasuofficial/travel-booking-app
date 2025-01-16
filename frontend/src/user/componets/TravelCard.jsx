@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from "react";
+import api from "../../service/ApiService";
+import ApiRoutes from "../../utils/ApiRoutes";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
@@ -9,10 +11,8 @@ function TravelCard() {
   useEffect(() => {
     const fetchDestinations = async () => {
       try {
-        const response = await fetch("http://localhost:5000/api/destinations"); 
-        const data = await response.json();
-        console.log(data);
-        setDestinations(data); 
+        const response = await api.get(ApiRoutes.FETCH_DESTINATIONS.path);
+        setDestinations(response.data); // Assuming the API returns the destinations in `response.data`
       } catch (error) {
         console.error("Error fetching destinations:", error);
       }
@@ -24,7 +24,7 @@ function TravelCard() {
   const settings = {
     dots: true, // Disable navigation dots
     infinite: true, // Loop slides infinitely
-    speed: 500, // Transition speed in ms
+    speed: 3000, // Transition speed in ms
     slidesToShow: 3, 
     slidesToScroll: 1,
     autoplay: true, // Enable automatic scrolling
@@ -46,30 +46,30 @@ function TravelCard() {
   };
 
   return (
-    <div className="carousel-container">
-     <h2 className="text-4xl font-extrabold text-gray-800 mb-5 mb mx-auto mt-5 text-center">Our Featured Tour</h2>
+    <div className="carousel-container overflow-hidden pb-5 bg-gray-100">
+      <h2 className="text-4xl font-extrabold text-gray-800 mb-5 mx-auto mt-5 text-center">Our Featured Tour</h2>
 
       <Slider {...settings}>
         {destinations.map((destination) => (
           <div
             key={destination._id}
-            className="max-w-xs rounded-lg border border-gray-200 shadow-md overflow-hidden bg-white"
+            className="max-w-xs rounded-lg border border-pink-200 shadow-md overflow-hidden bg-white mx-5"
           >
             <div className="relative h-40">
               <img
-                src={destination.images[0]} 
+                src={destination.images[0]}
                 alt={destination.name}
                 className="absolute w-full h-full object-cover"
               />
             </div>
 
             <div className="p-4">
-              <span className="text-xs font-semibold text-gray-500 uppercase">
+              <span className="text-xs font-semibold text-gray-800 uppercase ">
                 {destination.location}
               </span>
 
               <h2 className="mt-1 text-sm font-bold text-gray-800 truncate">
-                <a href={`/destination/${destination._id}`} className="hover:underline">
+                <a href={`/destination/${destination._id}`} className="hover no-underline text-yellow-500">
                   {destination.name}
                 </a>
               </h2>
@@ -90,7 +90,7 @@ function TravelCard() {
 
               <a
                 href={`/destination/${destination._id}`}
-                className="mt-4 block w-full text-center bg-blue-600 text-white py-1.5 text-xs rounded-md hover:bg-blue-700 no-underline"
+                className="mt-4 block w-full text-center bg-pink-600 text-white py-1.5 text-xs rounded-md hover:bg-gray-700 no-underline"
               >
                 Book
               </a>

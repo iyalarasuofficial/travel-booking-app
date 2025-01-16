@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from "react-router-dom";
 
-const AboutSection= () => {
+const AboutSection = () => {
   const counters = [
-    { title: "Happy Traveller", value: 50, suffix: "k+" },
+    { title: "Happy Traveller", value: 200, suffix: "k+" },
     { title: "Tent Sites", value: 32, suffix: "k" },
     { title: "Satisfaction Rate", value: 100, suffix: "%" },
     { title: "Year Of Service", value: 17, suffix: "+" }
@@ -12,9 +13,9 @@ const AboutSection= () => {
 
   useEffect(() => {
     counters.forEach((counter, index) => {
-      let count = 0;
+      let count = 50;
       const interval = setInterval(() => {
-        count += Math.floor(counter.value / 100);
+        count += Math.floor(counter.value / 70);
         if (count >= counter.value) {
           clearInterval(interval);
           count = counter.value;
@@ -29,11 +30,11 @@ const AboutSection= () => {
   }, []);
 
   return (
-    <div className="bg-white py-12 px-6 md:px-12">
+    <div className="bg-pink-100 py-12 px-6 md:px-12">
       {/* About Travelami Section */}
       <div className="text-center mb-16">
         <h2 className="text-4xl font-extrabold text-gray-800 mb-4">About Travelami</h2>
-        <p className="text-xl text-gray-600 ">
+        <p className="text-xl text-gray-600">
           World Best Travel Agency Company Since 2006. In the beginning, this walking holiday will take you through
           the imposing Anidri Gorge and then the Irini Gorge, full of flowering oleander bushes, up to the scenic
           plateau of Omalos. The next highlight is walking down the world-famous Samaria Gorge to the seashore after
@@ -55,11 +56,13 @@ const AboutSection= () => {
         ))}
       </div>
 
-  
       <div className="text-center mt-12">
-        <a href="https://travelami.templaza.net/about-us/" className="bg-pink-600 text-white text-lg px-7 py-2 rounded-full shadow-lg hover:bg-blue-700 transition duration-300">
+        <Link
+          to="/tour"
+          className="bg-pink-600 text-white text-lg px-7 py-2 rounded-full shadow-lg hover:bg-pink-700 transition duration-300 no-underline"
+        >
           Discover More
-        </a>
+        </Link>
       </div>
     </div>
   );

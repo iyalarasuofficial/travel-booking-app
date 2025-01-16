@@ -1,9 +1,11 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import api from "../../../service/ApiService"; // Ensure this API service is correctly implemented
 import ApiRoutes from "../../../utils/ApiRoutes";
-import { Link } from "react-router-dom";
 import toast from "react-hot-toast"; // Ensure this import is correct
+import "@fortawesome/fontawesome-free/css/all.min.css"; // Import Font Awesome
+import logo from "../../../assets/photos/logo.png"
+
 
 const SignIn = () => {
   const navigate = useNavigate();
@@ -11,6 +13,7 @@ const SignIn = () => {
     email: "",
     password: "",
   });
+  const [showPassword, setShowPassword] = useState(false); // Toggle for password visibility
   const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
@@ -21,27 +24,30 @@ const SignIn = () => {
     }));
   };
 
+  const toggleShowPassword = () => {
+    setShowPassword((prevState) => !prevState);
+  };
+
   const handleSignIn = async (e) => {
     e.preventDefault();
     setLoading(true);
-  
+
     try {
-      // Use POST if required by API
       const response = await api.post(ApiRoutes.LOGIN.path, formData, {
         authenticate: ApiRoutes.LOGIN.authenticate,
       });
-  
+
       toast.success(response.data.message);
-  
+
       // Store session data
       sessionStorage.setItem("token", response.data.token);
       sessionStorage.setItem("role", response.data.role);
       sessionStorage.setItem("id", response.data.id);
-  
+
       // Redirect
       navigate("/home");
     } catch (error) {
-      console.error("Error:", error); // Debugging
+      console.error("Error:", error);
       toast.error(
         error.response?.data?.message || "Error occurred! Please try again!"
       );
@@ -49,11 +55,17 @@ const SignIn = () => {
       setLoading(false);
     }
   };
-  
 
   return (
-    <section className="h-screen flex items-center justify-center">
+    <section className="h-screen flex items-center justify-center bg-pink-100">
       <div className="flex flex-col w-96 items-center justify-center px-6 pb-12 mx-auto md:h-screen lg:py-0 sm:max-w-md">
+        <a href="#" className="flex items-center text-2xl font-semibold text-gray-900 mb-6">
+                  <img
+                    className="w-36 h-30"
+                    src={ logo}// Replace with the correct path to your logo
+                    alt="Logo"
+                  />
+                </a>
         <div className="w-full bg-white rounded-lg shadow md:mt-0 sm:max-w-md xl:p-0 sm:min-w-96 lg:mb-9">
           <div className="p-6 space-y-4 md:space-y-6 sm:p-8">
             <h1 className="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl">
@@ -73,7 +85,7 @@ const SignIn = () => {
                   id="email"
                   value={formData.email}
                   onChange={handleChange}
-                  className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-orange-600 focus:border-orange-600 block w-full p-2.5"
+                  className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-pink-600 focus:border-pink-600 block w-full p-2.5"
                   placeholder="name@company.com"
                   required
                 />
@@ -85,21 +97,38 @@ const SignIn = () => {
                 >
                   Password
                 </label>
-                <input
-                  type="password"
-                  name="password"
-                  id="password"
-                  value={formData.password}
-                  onChange={handleChange}
-                  placeholder="••••••••"
-                  className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-orange-600 focus:border-orange-600 block w-full p-2.5"
-                  required
-                />
+                <div className="relative">
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    name="password"
+                    id="password"
+                    value={formData.password}
+                    onChange={handleChange}
+                    placeholder="••••••••"
+                    className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-pink-600 focus:border-pink-600 block w-full p-2.5"
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={toggleShowPassword}
+                    className="absolute inset-y-0 right-3 flex items-center text-gray-500"
+                  >
+                    <i className={`fas ${showPassword ? "fa-eye-slash" : "fa-eye"}`}></i>
+                  </button>
+                </div>
+                <div className="text-right mt-2">
+                  <Link
+                    to="/forgot-password"
+                    className="text-sm font-medium text-pink-600 hover:underline"
+                  >
+                    Forgot password?
+                  </Link>
+                </div>
               </div>
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full text-white bg-orange-600 hover:bg-orange-700 focus:ring-4 focus:outline-none focus:ring-orange-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center flex items-center justify-center"
+                className="w-full text-white bg-pink-600 hover:bg-pink-700 focus:ring-4 focus:outline-none focus:ring-pink-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center flex items-center justify-center"
               >
                 {loading ? (
                   <svg
@@ -130,7 +159,7 @@ const SignIn = () => {
                 Don’t have an account yet?{" "}
                 <Link
                   to="/signup"
-                  className="font-medium text-orange-600 hover:underline"
+                  className="font-medium text-pink-600 hover:underline"
                 >
                   Sign up
                 </Link>

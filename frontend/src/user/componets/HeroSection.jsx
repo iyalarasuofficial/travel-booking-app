@@ -1,5 +1,6 @@
 import React from "react";
 import Nav from "./Nav";
+import { Link } from "react-router-dom";
 
 const HeroSection = () => {
   return (
@@ -35,12 +36,12 @@ const HeroSection = () => {
           </p>
 
           <div className="mt-8 flex flex-wrap gap-4 text-center justify-center">
-            <a
-              href="#"
-              className="block w-full mx-5 rounded bg-rose-600 px-12 py-3 text-sm font-medium text-white shadow hover:bg-rose-700 focus:outline-none focus:ring active:bg-rose-500 sm:w-auto"
+            <Link to='/tour'
+
+              className="block w-full mx-5 rounded bg-rose-600 px-12 py-3 text-sm font-medium text-white shadow hover:bg-rose-700 focus:outline-none focus:ring active:bg-rose-500 sm:w-auto no-underline"
             >
               Get Started
-            </a>
+            </Link>
 
 
           </div>
