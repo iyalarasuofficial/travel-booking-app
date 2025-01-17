@@ -8,8 +8,10 @@ const UserProfile = () => {
   const [userData, setUserData] = useState(null);
   const [editMode, setEditMode] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
-  const [profilePhoto, setProfilePhoto] = useState(null);  // State for the profile photo
-  const [userId, setUserId] = useState(null); // Add userId to state
+  const [userId, setUserId] = useState(null);
+  const [profileImage, setProfileImage] = useState(null); // New state to handle the image
+
+  const MAX_FILE_SIZE = 1 * 1024 * 1024; // 5MB limit
 
   // Extract user ID from token
   const getUserIdFromToken = () => {
@@ -31,7 +33,7 @@ const UserProfile = () => {
   // Fetch user data on mount
   useEffect(() => {
     const userId = getUserIdFromToken();
-    setUserId(userId); // Store userId in state
+    setUserId(userId);
 
     if (!userId) {
       toast.error("Invalid or missing user ID.");
@@ -40,7 +42,9 @@ const UserProfile = () => {
 
     const fetchUserData = async () => {
       try {
-        const response = await api.get(ApiRoutes.GET_USER_INFO_BY_ID.path);
+        console.log(ApiRoutes.GET_USER_INFO_BY_ID.path);
+        const response = await api.get(`${ApiRoutes.GET_USER_INFO_BY_ID.path}`);
+       
         if (response.status === 200) {
           setUserData(response.data);
         } else {
@@ -62,44 +66,48 @@ const UserProfile = () => {
     setHasChanges(true);
   };
 
-  // Handle photo upload
-  const handlePhotoChange = (e) => {
+  // Handle image upload with size validation
+  const handleImageUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
-      setProfilePhoto(file); // Update the profile photo state
-      setHasChanges(true); // Mark as having changes
+      if (file.size > MAX_FILE_SIZE) {
+        toast.error("Image size exceeds 5MB. Please choose a smaller file.");
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setProfileImage(reader.result); // Store the base64 string
+        setHasChanges(true);
+      };
+      reader.readAsDataURL(file);
     }
   };
 
-  // Save updated data
+  // Handle profile update
   const handleSave = async () => {
     if (!userId) {
       toast.error("User ID is missing.");
       return;
     }
 
-    const formData = new FormData();
-    formData.append("username", userData.username);
-    formData.append("email", userData.email);
-    formData.append("role", userData.role);
-
-    if (profilePhoto) {
-      formData.append("profilePhoto", profilePhoto); // Append the photo file
-    } else {
-      formData.append("profilePhoto", userData.photo); // Use existing photo if no new one
-    }
-
     try {
-      const response = await api.put(`${ApiRoutes.UPDATE_USER.path}/${userId}`, formData, {
-        headers: {
-          "Content-Type": "multipart/form-data", // Important for file uploads
-        },
-      });
+      // Prepare data for the update request
+      const profileData = {
+        username: userData.username,
+        email: userData.email,
+        role: userData.role,
+        profilePhoto: profileImage, // Base64 image
+      };
+
+      // Send update request
+      const response = await api.put(`${ApiRoutes.UPDATE_USER.path}/${userId}`, profileData);
 
       if (response.status === 200) {
         toast.success("Profile updated successfully.");
         setEditMode(false);
         setHasChanges(false);
+        setProfileImage(null); // Reset the uploaded image state
       } else {
         toast.error("Failed to update profile.");
       }
@@ -170,24 +178,15 @@ const UserProfile = () => {
             <input
               type="file"
               name="profilePhoto"
-              onChange={handlePhotoChange}
+              onChange={handleImageUpload}
               disabled={!editMode}
               className="border rounded p-2 focus:outline-none"
             />
-            {userData.profilePhoto && !profilePhoto && (
+            {profileImage && (
               <div className="mt-2">
                 <img
-                  src={userData.profilePhoto}
+                  src={profileImage}
                   alt="Profile"
-                  className="w-24 h-24 object-cover rounded-full"
-                />
-              </div>
-            )}
-            {profilePhoto && (
-              <div className="mt-2">
-                <img
-                  src={URL.createObjectURL(profilePhoto)}
-                  alt="New Profile"
                   className="w-24 h-24 object-cover rounded-full"
                 />
               </div>

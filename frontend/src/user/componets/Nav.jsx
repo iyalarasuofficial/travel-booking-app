@@ -53,8 +53,9 @@ const Nav = () => {
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-       const response = await api.get(ApiRoutes.GET_USER_INFO_BY_ID.path);
-        setUser(response.data.photo);
+        const response = await api.get(ApiRoutes.GET_USER_INFO_BY_ID.path);
+        // Assuming the API returns the Base64 encoded image with `data:image/png;base64,` prefix
+        setUser(response.data);  // Set the full user object which should include photo as a Base64 string
       } catch (error) {
         console.error('Error fetching user data:', error);
       }
@@ -73,27 +74,24 @@ const Nav = () => {
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
           <div className="flex-1 ">
-           
-              <img
-                src={logo}
-                alt="TravelSphere Logo"
-                className="h-12 w-auto"
-              />
-         
+            <img
+              src={logo}
+              alt="TravelSphere Logo"
+              className="h-12 w-auto"
+            />
           </div>
 
           {/* Hamburger Button for Small Screens */}
           <div className="md:hidden flex items-center ">
-  <button
-    type="button"
-    className="text-black font-bold focus:outline-none mr-7"
-    onClick={toggleNavMenu}
-  >
-    <span className="sr-only">Open menu</span>
-    ☰
-  </button>
-</div>
-
+            <button
+              type="button"
+              className="text-black font-bold focus:outline-none mr-7"
+              onClick={toggleNavMenu}
+            >
+              <span className="sr-only">Open menu</span>
+              ☰
+            </button>
+          </div>
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex md:items-center md:gap-10">
@@ -128,7 +126,8 @@ const Nav = () => {
             >
               <span className="sr-only">Toggle profile menu</span>
               <img
-                src={user  ? `${import.meta.env.VITE_BASE_URL}/${user}` : defaultprofile }
+                // Display the profile image, either from the user's Base64 string or fallback to default image
+                src={user && user.photo ? user.photo : defaultprofile }
                 alt="Profile"
                 className="w-10 h-10 object-cover rounded-full"
               />

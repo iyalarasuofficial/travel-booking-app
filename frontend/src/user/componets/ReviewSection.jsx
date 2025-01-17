@@ -1,74 +1,85 @@
 import React, { useState, useEffect } from "react";
-import { FaStar } from "react-icons/fa";
+import { FaStar, FaSpinner } from "react-icons/fa";  // Import spinner and icons
 import api from "../../service/ApiService"; 
 import ApiRoutes from "../../utils/ApiRoutes";
-import defaultprofile from '../../assets/photos/defaultProfile.png'
+import defaultprofile from '../../assets/photos/defaultProfile.png';
+import toast from 'react-hot-toast';  // Import the toast library
 
 function ReviewSection({ destinationId, loggedInUserId }) {
   const [reviews, setReviews] = useState([]);
   const [newComment, setNewComment] = useState("");
   const [newRating, setNewRating] = useState(null);
   const [message, setMessage] = useState(null);
+  const [loading, setLoading] = useState(false);  // State for loading indicator
 
-// Fetch reviews for the destination
-useEffect(() => {
-  const fetchReviews = async () => {
+  // Fetch reviews for the destination
+  useEffect(() => {
+    const fetchReviews = async () => {
+      try {
+        const response = await api.get(`${ApiRoutes.FETCH_REVIEWS.path}/${destinationId}`);
+        setReviews(response.data.reviews);
+      } catch (error) {
+        console.error("Error fetching reviews:", error);
+      }
+    };
+
+    if (destinationId) {
+      fetchReviews();
+    }
+  }, [destinationId]);
+
+  // Handle adding a review
+  const handleAddReview = async () => {
+    if (newRating === null || !newComment.trim()) {
+      setMessage("Please select a rating and enter a comment.");
+      return;
+    }
+
+    setLoading(true);  // Start loading spinner
+
     try {
-      const response = await api.get(`${ApiRoutes.FETCH_REVIEWS.path}/${destinationId}`);
-      setReviews(response.data.reviews);
+      const response = await api.post(ApiRoutes.ADD_REVIEW.path, {
+        destination: destinationId,
+        rating: newRating,
+        comment: newComment,
+        userId: loggedInUserId,
+      });
+      setReviews([...reviews, response.data.review]); // Add the new review to the state
+      setNewComment("");
+      setNewRating(null);
+      setMessage(null);
+
+      // Show success toast message
+      toast.success("Review added successfully!");
     } catch (error) {
-      console.error("Error fetching reviews:", error);
+      console.error("Error adding review:", error);
+      // Show error toast message
+      toast.error("Failed to add review. Please try again.");
+    } finally {
+      setLoading(false);  // Stop loading spinner after submission
     }
   };
 
-  if (destinationId) {
-    fetchReviews();
-  }
-}, [destinationId]);
-
-// Handle adding a review
-const handleAddReview = async () => {
-  if (newRating === null || !newComment.trim()) {
-    setMessage("Please select a rating and enter a comment.");
-    return;
-  }
-
-  try {
-    const response = await api.post(ApiRoutes.ADD_REVIEW.path, {
-      destination: destinationId,
-      rating: newRating,
-      comment: newComment,
-      userId: loggedInUserId,
-    });
-    setReviews([...reviews, response.data.review]); // Add the new review to the state
-    setNewComment("");
-    setNewRating(null);
-    setMessage(null);
-  } catch (error) {
-    console.error("Error adding review:", error);
-  }
-};
-
-// Render star rating component
-const renderStarRating = (rating, onClick) => (
-  <div className="flex gap-1">
-    {[...Array(5)].map((_, index) => (
-      <FaStar
-        key={index}
-        size={24}
-        className={index < rating ? "text-yellow-500" : "text-gray-300"}
-        onClick={() => onClick && onClick(index + 1)}
-        style={{ cursor: onClick ? "pointer" : "default" }}
-      />
-    ))}
-  </div>
-);
+  // Render star rating component
+  const renderStarRating = (rating, onClick) => (
+    <div className="flex gap-1">
+      {[...Array(5)].map((_, index) => (
+        <FaStar
+          key={index}
+          size={24}
+          className={index < rating ? "text-yellow-500" : "text-gray-300"}
+          onClick={() => onClick && onClick(index + 1)}
+          style={{ cursor: onClick ? "pointer" : "default" }}
+        />
+      ))}
+    </div>
+  );
 
   return (
     <section className="flex w-full rounded-lg border-2 border-pink-600 p-4 my-8">
       <div className="w-full max-w-3xl"> {/* Allow review section to take up the remaining space */}
         <h3 className="font-os text-lg font-bold text-pink-800 mb-4">Leave a Comment</h3>
-        
+
         {/* Reviews - Added Scroll */}
         <div className="max-h-40 w-full overflow-y-scroll">
           {reviews.map((review) => (
@@ -76,8 +87,7 @@ const renderStarRating = (rating, onClick) => (
               <div className="w-14 h-14 rounded-full bg-pink-400/50 flex-shrink-0 flex items-center justify-center">
                 <img
                   className="h-12 w-12 rounded-full object-cover"
-      
-                  src={review.user? `${import.meta.env.VITE_BASE_URL}/${review.user?.photo}` : defaultprofile}
+                  src={review.user?.photo ? review.user.photo : defaultprofile}
                   alt={review.user?.username || "User"}
                 />
               </div>
@@ -109,13 +119,16 @@ const renderStarRating = (rating, onClick) => (
           <button
             onClick={handleAddReview}
             className="bg-pink-700 text-white font-medium py-2 px-4 rounded hover:bg-pink-600 mt-2"
+            disabled={loading}  // Disable button when loading
           >
-            Add Review
+            {loading ? (
+              <FaSpinner className="animate-spin" size={20} />  // Show spinner when loading
+            ) : (
+              "Add Review"
+            )}
           </button>
         </div>
       </div>
-
-   
     </section>
   );
 }
