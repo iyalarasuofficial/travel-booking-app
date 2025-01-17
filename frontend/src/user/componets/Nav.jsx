@@ -4,7 +4,7 @@ import api from '../../service/ApiService';
 import logo from "../../assets/photos/logo.png";
 import toast from 'react-hot-toast';
 import ApiRoutes from '../../utils/ApiRoutes';
-import defaultprofile from '../../assets/photos/defaultprofile.png'
+import defaultprofile from '../../assets/photos/defaultProfile.png'
 
 const Nav = () => {
   const [isNavMenuOpen, setIsNavMenuOpen] = useState(false);
