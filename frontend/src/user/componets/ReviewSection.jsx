@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { FaStar } from "react-icons/fa";
 import api from "../../service/ApiService"; 
 import ApiRoutes from "../../utils/ApiRoutes";
-import defaultprofile from '../../assets/photos/defaultprofile.png'
+import defaultprofile from '../../assets/photos/defaultProfile.png'
 
 function ReviewSection({ destinationId, loggedInUserId }) {
   const [reviews, setReviews] = useState([]);
