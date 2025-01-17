@@ -25,14 +25,12 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 connectDB();
 // Serve static files for Reac
-if (process.env.NODE_ENV === 'production') {
-  app.use(express.static(path.join(__dirname, 'client/build')));
+app.use(express.static(path.join(__dirname, 'client/build')));
 
-  // Catch-all for React Router
-  app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, 'client/build', 'index.html'));
-  });
-}
+// Handle React routing, return all requests to React app
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'client/build', 'index.html'));
+});
 app.use('/api/users', userRoutes);
 app.use('/api/bookings', bookingRoutes);
 app.use('/api/destinations', destinationRoutes);
