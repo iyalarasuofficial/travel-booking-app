@@ -10,8 +10,8 @@
 *.log
 
 # Ignore build output
-/frontend/build/
-/backend/build/
+# /frontend/build/
+# /backend/build/
 
 # Ignore other environment files
 *.env.local
