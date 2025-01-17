@@ -25,11 +25,7 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 connectDB();
 
-app.use('/api/users', userRoutes);
-app.use('/api/bookings', bookingRoutes);
-app.use('/api/destinations', destinationRoutes);
-app.use('/api/reviews', reviewRoutes);
-app.use('/api/auth', authRoutes);
+
 
 // Serve static files for React
 if (process.env.NODE_ENV === 'production') {
@@ -40,6 +36,11 @@ if (process.env.NODE_ENV === 'production') {
     res.sendFile(path.join(__dirname, 'client/build', 'index.html'));
   });
 }
+app.use('/api/users', userRoutes);
+app.use('/api/bookings', bookingRoutes);
+app.use('/api/destinations', destinationRoutes);
+app.use('/api/reviews', reviewRoutes);
+app.use('/api/auth', authRoutes);
 
 const PORT = process.env.PORT || 5000;
 
