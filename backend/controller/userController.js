@@ -1,4 +1,4 @@
-import User from '../models/user.js'; // Assuming your model is in the `models` directory
+import User from '../models/User.js'; // Assuming your model is in the `models` directory
 import bcrypt from 'bcryptjs';
 import multer from 'multer';
 import path from 'path';
